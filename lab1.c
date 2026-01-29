@@ -141,12 +141,22 @@ void do_state_1(void) {
     on = !on;
 }
 
-/* ---- S2: all LEDs on ---- */
+/* ---- S2: running light backward ---- */
 void enter_state_2(void) { leds_off(); }
 void exit_state_2(void)  { leds_off(); }
 
 void do_state_2(void) {
-    leds_on();
+    static int i = 3;   // start from last LED
+    leds_off();
+
+    switch(i) {
+        case 0: gpio_put(LED1_GPIO, 1); break;
+        case 1: gpio_put(LED2_GPIO, 1); break;
+        case 2: gpio_put(LED3_GPIO, 1); break;
+        case 3: gpio_put(LED4_GPIO, 1); break;
+    }
+
+    i = (i - 1 + 4) % 4;
 }
 
 /* ---- S3: PWM on LED1 (LED1_GPIO) ---- */
