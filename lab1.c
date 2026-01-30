@@ -228,22 +228,41 @@ int main(void) {
     private_init();
 
     const state_t* current_state = &state0;
-    event_t evt = no_evt;
+    const state_t* next_state    = current_state;
 
-    for(;;) 
-    {
-        // enter state function
-        if (current_state->Enter) { current_state->Enter(); }
+    /* Enter only once at startup */
+    if (current_state->Enter) {
+        current_state->Enter();
+    }
 
-        current_state->Do();
-        evt = get_event(); 
-
-        // move to the next state based on the event
-        if (evt != no_evt) {
-            if (current_state->Exit) { current_state->Exit(); }
-            current_state = state_table[current_state->id][evt];  // state transition
+    while (1) {
+        /* One non-blocking step */
+        if (current_state->Do) {
+            current_state->Do();
         }
 
+        /* Pace the loop (allowed here, not inside Do) */
         sleep_ms(current_state->delay_ms);
+
+        /* Fetch event */
+        event_t evt = get_event();
+
+        /* Decide next state */
+        if (evt != no_evt) {
+            next_state = state_table[current_state->id][evt];
+
+            /* Transition only if state actually changes */
+            if (next_state != current_state) {
+                if (current_state->Exit) {
+                    current_state->Exit();
+                }
+
+                current_state = next_state;
+
+                if (current_state->Enter) {
+                    current_state->Enter();
+                }
+            }
+        }
     }
 }
