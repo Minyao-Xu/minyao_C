@@ -1,0 +1,12 @@
+{
+    "env": {
+        "zephyrSourcePath": "${ZEPHYR_BASE}"
+    },
+    "configurations": [
+        {
+            "name": "Zepyhr",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
